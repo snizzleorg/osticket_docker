@@ -1,0 +1,84 @@
+services:
+  web:
+    build: ./docker/web
+    container_name: osticket-web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./web:/var/www/html
+      - ./config/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
+      - ./config/apache-vhost.conf:/etc/apache2/sites-enabled/000-default.conf:ro
+      - uploads:/var/www/html/upload/attachments
+    environment:
+      APACHE_DOCUMENT_ROOT: /var/www/html
+      DB_HOST: db
+      DB_NAME: osticket
+      DB_USER: osticket
+      DB_PASS: osticketpass
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mariadb:10.11
+    container_name: osticket-db
+    environment:
+      MYSQL_ROOT_PASSWORD: supersecret
+      MYSQL_DATABASE: osticket
+      MYSQL_USER: osticket
+      MYSQL_PASSWORD: osticketpass
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./config/mariadb.cnf:/etc/mysql/conf.d/osticket.cnf:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: osticket-phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: supersecret
+      PMA_ARBITRARY: 1
+      UPLOAD_LIMIT: 50M
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  migration:
+    build: ./docker/migration
+    container_name: osticket-migration
+    profiles:
+      - migration
+    volumes:
+      - ./migration/data:/migration/data
+      - ./migration/ssh:/root/.ssh:ro
+      - ./web:/web
+      - ./.env.migration:/migration/.env.migration:ro
+    environment:
+      DB_HOST: db
+      DB_NAME: osticket
+      DB_USER: osticket
+      DB_PASS: osticketpass
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["/bin/bash", "-c", "echo 'Migration container ready. Run: pull-from-server.sh' && tail -f /dev/null"]
+    stdin_open: true
+    tty: true
+
+volumes:
+  dbdata:
+    driver: local
+  uploads:
+    driver: local

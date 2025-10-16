@@ -1,0 +1,39 @@
+# osTicket files
+web/*
+!web/.gitkeep
+
+# Database data
+*.sql
+*.sql.gz
+
+# Environment files
+.env
+.env.local
+
+# Docker volumes
+dbdata/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Backups
+backups/
+*.backup
+migration/data/*
+!migration/data/.gitkeep
+migration/ssh/*
+!migration/ssh/README.md
+# Migration environment file (contains sensitive data)
+.env.migration
