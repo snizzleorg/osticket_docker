@@ -61,7 +61,7 @@ RUN wget -q https://github.com/osTicket/osTicket/releases/download/${OSTICKET_VE
     && chown -R www-data:www-data /usr/src/osticket
 
 # Copy entrypoint script
-COPY docker-entrypoint.sh /usr/local/bin/
+COPY docker/web/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Expose port 80

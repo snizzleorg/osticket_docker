@@ -15,8 +15,8 @@ RUN apk add --no-cache \
     bc
 
 # Copy migration scripts
-COPY migrate.sh /usr/local/bin/migrate.sh
-COPY pull-from-server.sh /usr/local/bin/pull-from-server.sh
+COPY docker/migration/migrate.sh /usr/local/bin/migrate.sh
+COPY docker/migration/pull-from-server.sh /usr/local/bin/pull-from-server.sh
 RUN chmod +x /usr/local/bin/migrate.sh /usr/local/bin/pull-from-server.sh
 
 # Create SSH directory
