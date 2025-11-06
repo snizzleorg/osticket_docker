@@ -1,8 +1,10 @@
 # SSH Keys Directory
 
-Place SSH private keys here if you want to use key-based authentication.
+Place SSH private keys here for key-based authentication during migration.
 
-## Usage
+> **Note:** This is primarily for local development. When using Portainer, SSH keys are stored in the `osticket_migration_ssh` volume.
+
+## Usage (Local Development)
 
 1. Copy your SSH private key:
    ```bash
@@ -13,6 +15,13 @@ Place SSH private keys here if you want to use key-based authentication.
 2. The key will be available in the container at `/root/.ssh/id_rsa`
 
 3. When running `pull-from-server.sh`, choose option 3 (SSH key file)
+
+## Usage (Portainer)
+
+SSH keys are stored in the `osticket_migration_ssh` named volume. You can:
+- Copy keys via the container console
+- Use password authentication instead
+- Use the interactive migration script
 
 ## Security Note
 

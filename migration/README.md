@@ -2,6 +2,8 @@
 
 This directory stores data pulled from your old osTicket server and SSH keys for authentication.
 
+> **Note:** When using Portainer with Docker Hub images, the migration container uses named volumes instead of this local directory. This directory is primarily for local development.
+
 ## Structure
 
 ```
@@ -23,7 +25,19 @@ migration/
 
 ## Usage
 
-### Method 1: Environment File (Recommended)
+### For Portainer Deployment
+
+1. Start the migration container in Portainer (Containers → osticket-migration → Start)
+2. Access the container console
+3. Run migration commands:
+   ```bash
+   pull-from-server.sh  # Pull data via SSH
+   migrate.sh           # Import to Docker
+   ```
+
+### For Local Development
+
+#### Method 1: Environment File (Recommended)
 
 Store your configuration in `.env.migration` at project root:
 
@@ -41,7 +55,7 @@ docker compose exec migration pull-from-server.sh
 
 Just type `yes` and it uses your saved configuration!
 
-### Method 2: Interactive (No Config File)
+#### Method 2: Interactive (No Config File)
 
 Run without `.env.migration` and enter details interactively:
 
@@ -300,6 +314,5 @@ After placing files in this directory:
 
 ## See Also
 
-- [REMOTE_MIGRATION_GUIDE.md](../REMOTE_MIGRATION_GUIDE.md) - Complete migration guide
-- [MIGRATION_CONTAINER.md](../MIGRATION_CONTAINER.md) - Technical details
 - [README.md](../README.md) - Main documentation
+- [PORTAINER_DEPLOY_GUIDE.md](../PORTAINER_DEPLOY_GUIDE.md) - Portainer deployment guide
