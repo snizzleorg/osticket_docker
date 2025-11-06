@@ -72,8 +72,7 @@ services:
   migration:
     image: universaldilettant/osticket-migration:latest
     container_name: osticket-migration
-    profiles:
-      - migration
+    restart: "no"
     volumes:
       - osticket_migration_data:/migration/data
       - osticket_migration_ssh:/root/.ssh
