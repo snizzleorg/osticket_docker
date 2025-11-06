@@ -1,280 +1,220 @@
 # osTicket Docker Setup
 
-Complete Docker stack for running osTicket with MariaDB, phpMyAdmin, and automated migration tools.
+Pre-built Docker images for running osTicket with MariaDB, phpMyAdmin, and migration tools.
 
 ## Features
 
-- **PHP 8.2** with Apache and all required osTicket extensions
-- **MariaDB 10.11** with optimized configuration  
-- **phpMyAdmin** for database management
-- **Migration container** with SSH-based pull from old servers
-- Persistent volumes for database, uploads, and application files
-- Health checks and auto-restart policies
-- Portainer-compatible deployment
+- ✅ **Pre-built AMD64 images** on Docker Hub (no building required)
+- ✅ **PHP 8.3** with Apache and all required osTicket extensions
+- ✅ **MariaDB 10.11** with optimized configuration  
+- ✅ **phpMyAdmin** for database management
+- ✅ **Migration container** with SSH-based pull from old servers
+- ✅ **Portainer-ready** deployment
+- ✅ **Free hosting** on Docker Hub
 
-## Documentation
+## Quick Start
 
-📖 **[DOCS.md](DOCS.md)** - Complete documentation index
+### Portainer Deployment (Recommended)
 
-**Quick links:**
+📖 **[PORTAINER_DEPLOY_GUIDE.md](PORTAINER_DEPLOY_GUIDE.md)** - Complete deployment guide
 
-- **[Fresh Installation](#fresh-installation)** - New osTicket setup
-- **[Migration Guide](REMOTE_MIGRATION_GUIDE.md)** - Migrate from existing server via SSH
-- **[Quick Start](QUICK_START.md)** - Command reference
-- **[Portainer Deployment](PORTAINER_DEPLOYMENT.md)** - Deploy with Portainer
-- **[Technical Details](MIGRATION_CONTAINER.md)** - Migration container architecture
+1. Copy `docker-compose.portainer.yml`
+2. Paste into Portainer → Stacks → Add Stack
+3. Deploy
+4. Access at `http://your-server:8082`
 
-## Directory Structure
+### Docker Images
+
+- **Web**: `universaldilettant/osticket-web:latest`
+- **Migration**: `universaldilettant/osticket-migration:latest`
+
+Both images are pre-built for **AMD64** and hosted free on Docker Hub.
+
+## Repository Structure
 
 ```
 osticket_docker/
-├── docker-compose.yml          # Main orchestration file
+├── docker-compose.portainer.yml    # Portainer stack (uses Docker Hub images)
+├── docker-compose.yml              # Local development (builds from source)
 ├── docker/
-│   ├── web/
-│   │   ├── Dockerfile          # PHP 8.2 + Apache image
-│   │   └── entrypoint.sh       # Startup script
-│   └── migration/
-│       ├── Dockerfile          # Alpine + SSH migration tools
-│       ├── migrate.sh          # Import script
-│       └── pull-from-server.sh # SSH pull script
-├── config/
-│   ├── apache-vhost.conf       # Apache configuration
-│   ├── php.ini                 # PHP settings
-│   └── mariadb.cnf             # Database tuning
-├── migration/
-│   ├── data/                   # Migration archives
-│   └── ssh/                    # SSH keys (optional)
-├── web/                        # osTicket files (after migration or install)
-└── Documentation files (.md)
+│   ├── web/Dockerfile              # Web image source
+│   └── migration/Dockerfile        # Migration image source
+├── build-for-portainer.sh          # Build & push script for updates
+└── PORTAINER_DEPLOY_GUIDE.md       # Deployment instructions
 ```
 
 ## Prerequisites
 
+### For Portainer Deployment:
+- Portainer instance
+- 5GB+ free disk space
+
+### For Local Development:
 - Docker Engine 20.10+
-- Docker Compose 2.0+  
-- 5GB+ free disk space (more for migrations with attachments)
-- For migration: SSH access to old server
+- Docker Compose 2.0+
 
-## Fresh Installation
+### For Building Images:
+- Docker Buildx (multi-platform support)
+- Docker Hub account (free)
 
-### Step 1: Download osTicket
+## Deployment
 
-```bash
-# Download latest osTicket
-wget https://github.com/osTicket/osTicket/releases/download/v1.18.1/osTicket-v1.18.1.zip
-unzip osTicket.zip -d web/
-mv web/upload/* web/
-rmdir web/upload
+### Portainer (Recommended)
 
-# Set up config
-cp web/include/ost-sampleconfig.php web/include/ost-config.php
-chmod 666 web/include/ost-config.php
-```
+See **[PORTAINER_DEPLOY_GUIDE.md](PORTAINER_DEPLOY_GUIDE.md)** for complete instructions.
 
-### Step 2: Start Services
+**Quick steps:**
+1. Go to Portainer → Stacks → Add Stack
+2. Copy contents of `docker-compose.portainer.yml`
+3. Update passwords in the compose file
+4. Deploy the stack
+5. Access osTicket at `http://your-server:8082`
 
-```bash
-docker compose up -d
-```
+### First-Time Setup
 
-### Step 3: Run Setup Wizard
-
-1. Navigate to: **http://localhost:8080/setup/**
-
+1. Navigate to: `http://your-server:8082/setup/`
 2. Database credentials:
    - Host: `db`
    - Database: `osticket`
    - Username: `osticket`
-   - Password: `osticketpass`
+   - Password: (from your compose file)
+3. Complete the wizard
+4. Setup directory is automatically removed
 
-3. After setup:
+### Access Points
+
+- **osTicket**: http://your-server:8082/
+- **Admin Panel**: http://your-server:8082/scp/
+- **phpMyAdmin**: http://your-server:8081/
+
+## Migration from Existing Server
+
+The migration container is included but disabled by default.
+
+**To use migration:**
+1. Deploy the stack in Portainer
+2. Go to Containers → `osticket-migration` → Start
+3. Access the container console
+4. Run migration commands:
    ```bash
-   rm -rf web/setup/
-   chmod 644 web/include/ost-config.php
+   pull-from-server.sh  # Pull data via SSH
+   migrate.sh           # Import to Docker
    ```
 
-### Step 4: Access osTicket
-
-- **Frontend**: http://localhost:8080/
-- **Admin Panel**: http://localhost:8080/scp/
-- **phpMyAdmin**: http://localhost:8081/
-
-## Migrating from Existing Server
-
-**See [REMOTE_MIGRATION_GUIDE.md](REMOTE_MIGRATION_GUIDE.md) for complete instructions.**
-
-Quick overview:
-
-```bash
-# 1. Configure migration (optional - saves re-entering details)
-cp .env.migration.example .env.migration
-nano .env.migration  # Add your server details and SSH key
-
-# 2. Start migration container
-docker compose --profile migration up -d migration
-
-# 3. Pull from old server via SSH
-docker compose exec migration pull-from-server.sh
-# If using .env.migration: just type 'yes' and go!
-# Otherwise: enter server details interactively
-
-# 4. Import to Docker (auto-detects latest export)
-docker compose exec migration migrate.sh
-
-# 5. Start web services
-docker compose up -d web
-
-# 6. Access at http://localhost:8080/
-```
-
 **Features:**
-- ✅ Auto-excludes attachments from rsync (downloads via tar)
-- ✅ Compressed transfer to save bandwidth
-- ✅ Progress bars for large transfers
+- ✅ SSH-based pull from remote servers
+- ✅ Compressed transfers
+- ✅ Progress indicators
 - ✅ Automatic permission fixes
-- ✅ Auto-updates attachment paths for Docker
 
 ## Configuration
 
-### Database Credentials
+### Change Passwords
 
-Edit `docker-compose.yml`:
+⚠️ **IMPORTANT**: Update these in `docker-compose.portainer.yml` before deploying:
 
 ```yaml
-environment:
-  MYSQL_ROOT_PASSWORD: your_secure_password
-  MYSQL_DATABASE: osticket
-  MYSQL_USER: osticket  
-  MYSQL_PASSWORD: your_secure_password
+# Database service
+MYSQL_ROOT_PASSWORD: supersecret      # ← Change!
+MYSQL_PASSWORD: osticketpass          # ← Change!
+
+# Web service
+DB_PASS: osticketpass                 # ← Must match MYSQL_PASSWORD
+
+# phpMyAdmin
+PMA_PASSWORD: supersecret             # ← Must match MYSQL_ROOT_PASSWORD
 ```
 
-### PHP Settings
+### Change Ports
 
-Edit `config/php.ini`:
-- `upload_max_filesize = 50M`
-- `post_max_size = 50M`
-- `memory_limit = 256M`
-
-### Ports
-
-Edit `docker-compose.yml` ports section:
-- Web: `8080:80` (change 8080 to desired port)
-- phpMyAdmin: `8081:80`
+Edit ports in `docker-compose.portainer.yml`:
+- osTicket: `8082:80` (change 8082)
+- phpMyAdmin: `8081:80` (change 8081)
 
 ## Management
 
-### Daily Operations
+### In Portainer
 
+- **View logs**: Click container → Logs
+- **Console access**: Click container → Console
+- **Restart**: Click container → Restart
+- **Update stack**: Stacks → Your Stack → Editor → Update
+
+### Backup
+
+**Database:**
 ```bash
-# Start/stop
-docker compose up -d
-docker compose down
-
-# View logs
-docker compose logs -f web
-docker compose logs -f db
-
-# Shell access
-docker compose exec web bash
-docker compose exec db mysql -u osticket -posticketpass osticket
+docker exec osticket-db mysqldump -u osticket -p osticket | gzip > backup.sql.gz
 ```
 
-### Backup & Restore
-
-```bash
-# Backup database
-docker compose exec db mysqldump -u osticket -posticketpass osticket | gzip > backup_$(date +%Y%m%d).sql.gz
-
-# Backup files
-tar -czf web_backup_$(date +%Y%m%d).tar.gz web/
-
-# Restore database  
-gunzip < backup_20241016.sql.gz | docker compose exec -T db mysql -u osticket -posticketpass osticket
-
-# Restore files
-tar -xzf web_backup_20241016.tar.gz
-```
+**Volumes:**
+In Portainer: Volumes → Export each volume
 
 ### Updates
 
-```bash
-# Download new osTicket version to web/
-# Then navigate to:
-http://localhost:8080/scp/upgrade.php
-```
+When new images are available:
+1. In Portainer: Images → Pull `universaldilettant/osticket-web:latest`
+2. Stacks → Your Stack → Pull and redeploy
 
 ## Troubleshooting
 
-### Database Connection Failed
+### Container Won't Start
+- Check logs in Portainer (Container → Logs)
+- Verify database is healthy (should show green)
+- Check port conflicts
+
+### Can't Access osTicket
+- Verify port 8082 is not blocked by firewall
+- Check container status in Portainer
+- Review container logs
+
+### Database Connection Errors
+- Ensure `DB_PASS` matches `MYSQL_PASSWORD` in compose file
+- Wait for database health check to pass (green status)
+- Check database container logs
+
+## Security Checklist
+
+### Before Production:
+
+- [ ] Change all default passwords in compose file
+- [ ] Set up SSL/TLS (reverse proxy recommended)
+- [ ] Configure firewall rules
+- [ ] Remove phpMyAdmin if not needed
+- [ ] Set up automated backups
+- [ ] Update osTicket admin password after setup
+- [ ] Review and restrict container permissions
+
+## Building Images
+
+If you need to rebuild the images:
 
 ```bash
-# Check database health
-docker compose ps db
-docker compose logs db
-
-# Test connection
-docker compose exec web php -r "new mysqli('db', 'osticket', 'osticketpass', 'osticket');"
+./build-for-portainer.sh
 ```
 
-### Permission Errors
+This will:
+- Build both images for AMD64
+- Push to your Docker Hub account
+- Update the compose file
 
-```bash
-# Fix permissions
-docker compose exec web chown -R www-data:www-data /var/www/html
-docker compose exec web chmod 644 /var/www/html/include/ost-config.php
-```
+## Stack Components
 
-### Setup Directory Access
+- **osTicket**: v1.18.1 (GPL v2)
+- **PHP**: 8.3-apache
+- **MariaDB**: 10.11
+- **phpMyAdmin**: Latest
+- **Alpine Linux**: Migration container base
 
-If you can't access setup wizard, add your IP to `config/apache-vhost.conf`:
+## Docker Hub Images
 
-```apache
-<Directory /var/www/html/setup>
-    <RequireAll>
-        Require ip 127.0.0.1
-        Require ip YOUR.IP.HERE
-    </RequireAll>
-</Directory>
-```
-
-Restart: `docker compose restart web`
-
-### Migration Issues
-
-See [REMOTE_MIGRATION_GUIDE.md](REMOTE_MIGRATION_GUIDE.md#troubleshooting) troubleshooting section.
-
-## Security
-
-### Essential Steps
-
-1. ✅ **Change database passwords** in `docker-compose.yml`
-2. ✅ **Remove setup directory**: `rm -rf web/setup/`
-3. ✅ **Lock config file**: `chmod 644 web/include/ost-config.php`
-4. ✅ **Regular backups** of database and files
-5. ✅ **Keep osTicket updated**
-
-### Production
-
-1. **Use HTTPS** - Deploy behind reverse proxy (nginx/Traefik)
-2. **Remove phpMyAdmin** - Or restrict to admin IPs only
-3. **Disable PHP errors** - Set `display_errors = Off` in `config/php.ini`
-4. **Use secrets** - Environment files or Docker secrets for credentials
-5. **Monitor logs** - Set up log aggregation and monitoring
-6. **Automated backups** - Schedule regular backups to remote storage
+- Web: https://hub.docker.com/r/universaldilettant/osticket-web
+- Migration: https://hub.docker.com/r/universaldilettant/osticket-migration
 
 ## Resources
 
 - **osTicket Docs**: https://docs.osticket.com/
-- **osTicket Forum**: https://forum.osticket.com/
-- **GitHub**: https://github.com/osTicket/osTicket
-
-## Stack Components
-
-- **osTicket**: GPL v2
-- **PHP**: 8.2-apache
-- **MariaDB**: 10.11
-- **phpMyAdmin**: Latest
-- **Alpine Linux**: Migration container base
+- **Deployment Guide**: [PORTAINER_DEPLOY_GUIDE.md](PORTAINER_DEPLOY_GUIDE.md)
 
 ## License
 

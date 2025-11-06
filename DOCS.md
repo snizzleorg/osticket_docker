@@ -1,122 +1,72 @@
-# Documentation Index
+# osTicket Docker Documentation
 
-## Getting Started
+## 📖 Main Documentation
 
-### 🆕 Fresh Installation
-Start here if installing osTicket for the first time.
-
-**[README.md](README.md)** - Main installation guide
-- Download and setup osTicket
-- Configure Docker stack
-- Run setup wizard
-- Basic management commands
-
-### 🔄 Migration
-Start here if moving from an existing osTicket server.
-
-**[REMOTE_MIGRATION_GUIDE.md](REMOTE_MIGRATION_GUIDE.md)** - Complete migration guide
-- SSH-based pull from old server
-- Step-by-step instructions
+**[README.md](README.md)** - Complete setup and deployment guide
+- Pre-built Docker Hub images
+- Portainer deployment
+- Configuration
+- Management
 - Troubleshooting
-- Examples and scenarios
 
-### ⚡ Quick Reference
-**[QUICK_START.md](QUICK_START.md)** - Command cheat sheet
-- Fresh install commands
-- Migration commands  
-- Management commands
-- Common operations
+**[PORTAINER_DEPLOY_GUIDE.md](PORTAINER_DEPLOY_GUIDE.md)** - Detailed Portainer deployment
+- Step-by-step instructions
+- Configuration options
+- Migration tool usage
+- Security checklist
 
 ---
 
-## Platform-Specific
+## 🚀 Quick Start
 
-### 🐋 Portainer
-**[PORTAINER_DEPLOYMENT.md](PORTAINER_DEPLOYMENT.md)** - Deploy with Portainer
-- Stack deployment
-- Console access
-- Migration in Portainer
-- Portainer-specific tips
+### For Portainer (Recommended)
 
----
+1. Copy `docker-compose.portainer.yml`
+2. Paste into Portainer → Stacks → Add Stack
+3. Update passwords
+4. Deploy
+5. Access at `http://your-server:8082`
 
-## Advanced Topics
+### Docker Images
 
-### 🔧 Technical Details
-**[MIGRATION_CONTAINER.md](MIGRATION_CONTAINER.md)** - Migration container architecture
-- Container design
-- How it works
-- Advanced usage
-- Integration options
+- **Web**: `universaldilettant/osticket-web:latest`
+- **Migration**: `universaldilettant/osticket-migration:latest`
+
+Both pre-built for AMD64, hosted free on Docker Hub.
 
 ---
 
-## Directory-Specific
+## 🔧 For Developers
 
-### 📁 Migration Directory
-**[migration/README.md](migration/README.md)** - Migration directory usage
-- Directory structure
-- Data management
-- SSH keys
+### Building Images
 
-### 🔑 SSH Keys
-**[migration/ssh/README.md](migration/ssh/README.md)** - SSH key setup
-- Key placement
-- Usage in migration
-
----
-
-## Quick Navigation
-
-**I want to...**
-
-| Task | Documentation |
-|------|--------------|
-| Install osTicket fresh | [README.md](README.md#fresh-installation) |
-| Migrate from old server | [REMOTE_MIGRATION_GUIDE.md](REMOTE_MIGRATION_GUIDE.md) |
-| Deploy in Portainer | [PORTAINER_DEPLOYMENT.md](PORTAINER_DEPLOYMENT.md) |
-| Find commands quickly | [QUICK_START.md](QUICK_START.md) |
-| Understand migration container | [MIGRATION_CONTAINER.md](MIGRATION_CONTAINER.md) |
-| Backup and restore | [README.md](README.md#backup--restore) |
-| Troubleshoot issues | [README.md](README.md#troubleshooting) |
-| Configure PHP/Apache | [README.md](README.md#configuration) |
-| Update osTicket | [README.md](README.md#updates) |
-| Secure for production | [README.md](README.md#security) |
-
----
-
-## Document Hierarchy
-
+```bash
+./build-for-portainer.sh
 ```
-📘 README.md (START HERE)
-    ├─ Fresh Installation
-    ├─ Configuration
-    ├─ Management
-    └─ Security
 
-📗 REMOTE_MIGRATION_GUIDE.md (For migrations)
-    ├─ Prerequisites
-    ├─ Step-by-step
-    ├─ Troubleshooting
-    └─ Examples
+Builds and pushes both images to Docker Hub for AMD64 architecture.
 
-📙 PORTAINER_DEPLOYMENT.md (Portainer users)
-    ├─ Stack deployment
-    ├─ Migration workflow
-    └─ Portainer tips
+### Local Development
 
-⚡ QUICK_START.md (Quick reference)
-    └─ Command cheatsheet
+Use `docker-compose.yml` for local development (builds from source):
 
-🔧 MIGRATION_CONTAINER.md (Technical)
-    └─ Architecture details
+```bash
+docker compose up -d
 ```
 
 ---
 
-## External Resources
+## 📦 What's Included
 
-- **osTicket Official Docs**: https://docs.osticket.com/
-- **osTicket Forum**: https://forum.osticket.com/
-- **Docker Docs**: https://docs.docker.com/
-- **Portainer Docs**: https://docs.portainer.io/
+- **osTicket v1.18.1** with PHP 8.3
+- **MariaDB 10.11** database
+- **phpMyAdmin** for database management
+- **Migration tools** for data import
+
+---
+
+## 🔗 External Resources
+
+- **osTicket Docs**: https://docs.osticket.com/
+- **Docker Hub Images**: https://hub.docker.com/u/universaldilettant
+- **GitHub Repository**: https://github.com/snizzleorg/osticket_docker
