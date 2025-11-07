@@ -1,0 +1,37 @@
+# Example: Migration service with environment variables configured
+# This shows what the migration section should look like when uncommented
+
+  migration:
+    image: universaldilettant/osticket-migration:latest
+    container_name: osticket-migration
+    restart: "no"
+    volumes:
+      - osticket_migration_data:/migration/data
+      - osticket_migration_ssh:/root/.ssh
+      - osticket_web:/web
+    environment:
+      DB_HOST: db
+      DB_NAME: osticket
+      DB_USER: osticket
+      DB_PASS: osticketpass
+      
+      # Migration Configuration - UNCOMMENTED EXAMPLE
+      OLD_SERVER: support.example.com
+      SSH_USER: admin
+      SSH_PORT: "22"
+      OSTICKET_PATH: /var/www/html/osticket
+      AUTH_METHOD: "2"
+      SSH_KEY: |
+        -----BEGIN OPENSSH PRIVATE KEY-----
+        b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
+        NhAAAAAwEAAQAAAYEAyLkXvZ8mH5E7VqNjKPvJ8xKJ9YqH8vL5mN2pQ3rT6sU9wX4yZ1
+        ... your actual key content here ...
+        -----END OPENSSH PRIVATE KEY-----
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["/bin/bash", "-c", "echo 'Migration container ready. Run: pull-from-server.sh' && tail -f /dev/null"]
+    stdin_open: true
+    tty: true
+    networks:
+      - osticket-network

@@ -116,6 +116,56 @@ In Portainer, when deploying the stack, you can enable the migration profile by 
 - rsync for file transfers
 - Migration scripts
 
+### Configuring Migration in Portainer
+
+You have two options for providing SSH credentials:
+
+#### Option 1: Interactive Mode (Default)
+Simply run `pull-from-server.sh` and enter details when prompted:
+- Old server hostname/IP
+- SSH username and port
+- osTicket path
+- Authentication method
+
+#### Option 2: Pre-configure with Environment Variables
+
+**In Portainer:**
+1. Go to **Stacks** → your osTicket stack → **Editor**
+2. Find the `migration` service's `environment:` section
+3. **Remove the `#` symbols** to uncomment the variables you need
+4. Fill in your actual values
+5. Click **Update the stack**
+6. Restart the migration container
+
+**Example - what it should look like when uncommented:**
+
+```yaml
+environment:
+  DB_HOST: db
+  DB_NAME: osticket
+  DB_USER: osticket
+  DB_PASS: osticketpass
+  
+  # Uncommented migration config:
+  OLD_SERVER: support.example.com
+  SSH_USER: admin
+  SSH_PORT: "22"
+  OSTICKET_PATH: /var/www/html/osticket
+  AUTH_METHOD: "2"
+  SSH_KEY: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAA
+    ... paste your full private key here ...
+    -----END OPENSSH PRIVATE KEY-----
+```
+
+**Important:**
+- Values must be quoted (e.g., `"22"`, `"2"`)
+- Multi-line SSH_KEY must use the `|` syntax
+- Remove ALL `#` symbols from the lines you want to use
+
+Then the script will automatically use these values without prompting.
+
 ---
 
 ## 🐛 Troubleshooting

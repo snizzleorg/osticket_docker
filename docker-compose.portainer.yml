@@ -82,7 +82,13 @@ services:
       DB_NAME: osticket
       DB_USER: osticket
       DB_PASS: osticketpass
-      # IMPORTANT: Change password in production!
+      OLD_SERVER: picoquant.com
+      SSH_USER: ${SSH_USER}
+      SSH_PORT: "22"
+      OSTICKET_PATH: ${OSTICKET_PATH:-/var/www/html/osticket}
+      AUTH_METHOD: "2"
+      SSH_KEY: ${SSH_KEY}
+
     depends_on:
       db:
         condition: service_healthy
