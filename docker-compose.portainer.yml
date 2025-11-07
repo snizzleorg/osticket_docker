@@ -1,7 +1,7 @@
 version: '3.8'
 
 # Portainer Stack Configuration for osTicket
-# Replace YOUR_DOCKERHUB_USERNAME with your actual Docker Hub username
+# Replace universaldilettant with your actual Docker Hub username
 
 services:
   web:
@@ -88,6 +88,7 @@ services:
       OSTICKET_PATH: ${OSTICKET_PATH:-/var/www/html/osticket}
       AUTH_METHOD: "2"
       SSH_KEY: ${SSH_KEY}
+      SSH_KEY_B64: ${SSH_KEY_B64}
 
     depends_on:
       db:

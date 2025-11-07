@@ -60,9 +60,16 @@ case $AUTH_METHOD in
         ;;
     2)
         TEMP_KEY="/tmp/migration_key_$$"
-        if [ -z "$SSH_KEY" ]; then
+        if [ -z "$SSH_KEY" ] && [ -z "$SSH_KEY_B64" ]; then
             echo "Paste your private key (end with Ctrl+D on a new line):"
             cat > "$TEMP_KEY"
+        elif [ -n "$SSH_KEY_B64" ]; then
+            echo "Using base64-encoded SSH key from configuration..."
+            echo "$SSH_KEY_B64" | base64 -d > "$TEMP_KEY"
+            if [ $? -ne 0 ]; then
+                echo "Error: Failed to decode base64 SSH key"
+                exit 1
+            fi
         else
             echo "Using SSH key from configuration..."
             echo "$SSH_KEY" > "$TEMP_KEY"

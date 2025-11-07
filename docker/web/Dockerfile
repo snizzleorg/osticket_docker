@@ -1,4 +1,4 @@
-FROM php:8.3-apache-bookworm
+FROM php:8.1-apache-bookworm
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -46,6 +46,9 @@ RUN { \
     echo 'date.timezone = UTC'; \
     echo 'apc.enabled = 1'; \
     echo 'apc.shm_size = 32M'; \
+    echo 'error_reporting = E_ALL & ~E_DEPRECATED'; \
+    echo 'display_errors = Off'; \
+    echo 'log_errors = On'; \
     } > /usr/local/etc/php/conf.d/osticket.ini
 
 # Download and extract osTicket

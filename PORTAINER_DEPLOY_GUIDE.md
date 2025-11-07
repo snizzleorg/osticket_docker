@@ -118,6 +118,8 @@ In Portainer, when deploying the stack, you can enable the migration profile by 
 
 ### Configuring Migration in Portainer
 
+📖 **See [PORTAINER_SSH_KEY_GUIDE.md](PORTAINER_SSH_KEY_GUIDE.md) for detailed SSH key setup**
+
 You have two options for providing SSH credentials:
 
 #### Option 1: Interactive Mode (Default)
@@ -152,16 +154,35 @@ environment:
   SSH_PORT: "22"
   OSTICKET_PATH: /var/www/html/osticket
   AUTH_METHOD: "2"
-  SSH_KEY: |
-    -----BEGIN OPENSSH PRIVATE KEY-----
-    b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAA
-    ... paste your full private key here ...
-    -----END OPENSSH PRIVATE KEY-----
+  
+  # Option A: Use base64-encoded key (RECOMMENDED for Portainer)
+  SSH_KEY_B64: LS0tLS1CRUdJTiBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0K...
+  
+  # Option B: Use multi-line key (may have issues in Portainer UI)
+  # SSH_KEY: |
+  #   -----BEGIN OPENSSH PRIVATE KEY-----
+  #   b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAA
+  #   ... paste your full private key here ...
+  #   -----END OPENSSH PRIVATE KEY-----
 ```
+
+**How to encode your SSH key to base64:**
+
+On your local machine:
+```bash
+# Encode your private key
+cat ~/.ssh/id_rsa | base64 -w 0
+
+# Or if you have the key in a file:
+base64 -w 0 < your_private_key
+```
+
+Copy the output and paste it as the value for `SSH_KEY_B64`.
 
 **Important:**
 - Values must be quoted (e.g., `"22"`, `"2"`)
-- Multi-line SSH_KEY must use the `|` syntax
+- Use `SSH_KEY_B64` for Portainer (avoids multi-line issues)
+- Use `SSH_KEY` only if multi-line values work in your Portainer version
 - Remove ALL `#` symbols from the lines you want to use
 
 Then the script will automatically use these values without prompting.
