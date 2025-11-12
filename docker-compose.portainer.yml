@@ -14,7 +14,7 @@ services:
       # or use named volumes instead if bind mounts are not accessible
       - osticket_web:/var/www/html
       - osticket_config:/config
-      - osticket_uploads:/var/www/html/upload/attachments
+      - osticket_uploads:/var/www/html/attachments
     environment:
       APACHE_DOCUMENT_ROOT: /var/www/html
       DB_HOST: db
