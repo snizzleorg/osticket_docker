@@ -52,7 +52,9 @@ services:
       - osticket-network
 
   phpmyadmin:
+  
     image: phpmyadmin:latest
+    profiles: ["migration"]
     container_name: osticket-phpmyadmin
     ports:
       - "8081:80"
@@ -71,6 +73,7 @@ services:
 
   migration:
     image: universaldilettant/osticket-migration:latest
+    profiles: ["migration"]
     container_name: osticket-migration
     restart: "no"
     volumes:
