@@ -28,6 +28,7 @@ services:
     restart: unless-stopped
     networks:
       - osticket-network
+      - frontend
 
   db:
     image: mariadb:10.11
@@ -119,3 +120,5 @@ volumes:
 networks:
   osticket-network:
     driver: bridge
+  frontend:
+    external: true
